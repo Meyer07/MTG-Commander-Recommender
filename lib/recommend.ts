@@ -12,9 +12,9 @@ export async function getRecommendations(prefs:Preferences): Promise <Deck[]>
     const allCommanders:Deck[]=data.data.map((card:any)=>({
         id:card.id,
         commanderName:card.name,
-        colors:card.colors,
+        colors:card.color_identity || [],
         strategy: inferStrategy(card.oracle_text || "",card.name), 
-        budget: calculateBudget(card.prices.usd),
+        budget: calculateBudget(card.prices?.usd),
         bracket: 3, // Default value
         imageUrl: card.image_uris?.normal
 
@@ -81,11 +81,13 @@ function calculateScore(deck:Deck,prefs:Preferences):number
     let score=0;
 
     //checks color preferences
-    const colorMatch=deck.colors.filter(c => prefs.preferredColors.includes(c)).length;
+    const deckColors=deck.colors || [];
+    const colorMatch = deckColors.filter(c => prefs.preferredColors?.includes(c)).length;
     score+=colorMatch*10;
 
     //checks against prefered strategies
-    const strategyMatch = deck.strategy.filter(s => prefs.preferredStrategies.includes(s)).length;
+    const deckStrategies = deck.strategy || [];
+    const strategyMatch = deckStrategies.filter(s => prefs.preferredStrategies?.includes(s)).length;
     score+=strategyMatch*10;
 
     //checks budget
