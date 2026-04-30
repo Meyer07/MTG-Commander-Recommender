@@ -16,7 +16,7 @@ export async function getRecommendations(prefs:Preferences): Promise <Deck[]>
         strategy: inferStrategy(card.oracle_text || "",card.name), 
         budget: calculateBudget(card.prices.usd),
         bracket: 3, // Default value
-        imageURL: card.image_uris?.normal
+        imageUrl: card.image_uris?.normal
 
     }));
 
@@ -85,7 +85,7 @@ function calculateScore(deck:Deck,prefs:Preferences):number
     score+=colorMatch*10;
 
     //checks against prefered strategies
-    const strategyMatch=deck.colors.filter(s => prefs.preferredStrategies.includes(s)).length;
+    const strategyMatch = deck.strategy.filter(s => prefs.preferredStrategies.includes(s)).length;
     score+=strategyMatch*10;
 
     //checks budget

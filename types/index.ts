@@ -3,9 +3,10 @@ export interface Deck
     id:string;
     commanderName:string;
     colors:string[];
+    strategy:string[];
     budget:'low'|'mid'|'high';
     bracket:number;//1-5
-    imageURL:string
+    imageUrl:string
 }
 
 export interface Preferences
