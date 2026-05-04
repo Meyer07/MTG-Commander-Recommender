@@ -164,63 +164,74 @@ export default function Home() {
 
                 {/* Results Panel */}
                 <section className="lg:col-span-8">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-2xl font-bold tracking-tight">Top Resonances</h2>
-                        {results.length > 0 && (
-                            <span className="text-[10px] font-black text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20 uppercase tracking-widest">
-                                {results.length} Matches Found
-                            </span>
-                        )}
-                    </div>
+    <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl font-bold tracking-tight">Top Resonances</h2>
+        {results.length > 0 && (
+            <span className="text-[10px] font-black text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20 uppercase tracking-widest">
+                {results.length} Matches Found
+            </span>
+        )}
+    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        {results.length > 0 ? (
-                            results.map((deck) => (
-                                <div key={deck.id} className="group flex bg-slate-800/30 rounded-2xl overflow-hidden border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800/60 transition-all duration-500">
-                                    <div className="relative w-28 shrink-0 overflow-hidden">
-                                        <img 
-                                            src={deck.imageUrl} 
-                                            alt={deck.commanderName} 
-                                            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-slate-900/20"></div>
-                                    </div>
-                                    <div className="p-5 flex flex-col justify-between w-full">
-                                        <div>
-                                            <h3 className="font-bold text-lg leading-tight group-hover:text-blue-400 transition-colors line-clamp-1">
-                                                {deck.commanderName}
-                                            </h3>
-                                            <div className="flex flex-wrap gap-1.5 mt-2">
-                                                {deck.strategy?.slice(0, 2).map(s => (
-                                                    <span key={s} className="text-[9px] font-black text-purple-400 uppercase tracking-tighter">
-                                                        {s}
-                                                    </span>
-                                                )) || <span className="text-[9px] text-slate-600 font-bold">ARCANE THEME</span>}
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-between items-end mt-4">
-                                            <div className="flex -space-x-1">
-                                                {deck.colors?.map(c => (
-                                                    <span key={c} className="w-4 h-4 rounded-full border border-slate-900 shadow-sm" style={{ backgroundColor: getColorHex(c) }}></span>
-                                                ))}
-                                            </div>
-                                            <span className="text-[10px] font-bold text-slate-500 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-700 uppercase">
-                                                {deck.budget}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="col-span-full py-32 text-center border-2 border-dashed border-slate-800/50 rounded-[2rem] bg-slate-900/20">
-                                <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
-                                    <span className="text-2xl opacity-20">🔮</span>
-                                </div>
-                                <p className="text-slate-500 text-sm font-medium italic">The library is silent. Choose your path above.</p>
-                            </div>
-                        )}
+    {/* VISIBILITY CHANGE: Grid layout changed to 1, 2, or 3 columns based on screen size */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        {results.length > 0 ? (
+            results.map((deck) => (
+                <div key={deck.id} className="group flex flex-col bg-slate-800/30 rounded-2xl overflow-hidden border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800/60 transition-all duration-500 shadow-lg">
+                    {/* VISIBILITY CHANGE: Image is now on top for a 'card' feel */}
+                    <div className="relative h-44 w-full overflow-hidden">
+                        <img 
+                            src={deck.imageUrl} 
+                            alt={deck.commanderName} 
+                            className="h-full w-full object-cover object-top group-hover:scale-110 transition-transform duration-700" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60"></div>
                     </div>
-                </section>
+                    
+                    <div className="p-5 flex flex-col justify-between flex-grow">
+                        <div>
+                            <h3 className="font-bold text-md leading-tight group-hover:text-blue-400 transition-colors line-clamp-2 min-h-[3rem]">
+                                {deck.commanderName}
+                            </h3>
+                            <div className="flex flex-wrap gap-1.5 mt-3">
+                                {deck.strategy?.slice(0, 2).map(s => (
+                                    <span key={s} className="text-[9px] font-black text-purple-400 bg-purple-500/5 px-2 py-0.5 rounded border border-purple-500/10 uppercase tracking-tighter">
+                                        {s}
+                                    </span>
+                                )) || <span className="text-[9px] text-slate-600 font-bold uppercase">Standard Path</span>}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-5 pt-4 border-t border-slate-700/30">
+                            {/* VISIBILITY CHANGE: Colors and budget moved to a dedicated footer row */}
+                            <div className="flex -space-x-1.5">
+                                {deck.colors?.map(c => (
+                                    <span 
+                                        key={c} 
+                                        className="w-4 h-4 rounded-full border-2 border-slate-900 shadow-sm" 
+                                        style={{ backgroundColor: getColorHex(c) }}
+                                        title={c}
+                                    ></span>
+                                ))}
+                            </div>
+                            <span className="text-[10px] font-black text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-700 uppercase tracking-widest">
+                                {deck.budget === 'high' ? '$$$' : deck.budget === 'mid' ? '$$' : '$'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            ))
+              ) : (
+            /* Empty State */
+            <div className="col-span-full py-32 text-center border-2 border-dashed border-slate-800/50 rounded-[2rem] bg-slate-900/20">
+                <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700">
+                    <span className="text-2xl opacity-20">🔮</span>
+                </div>
+                <p className="text-slate-500 text-sm font-medium italic">The library is silent. Choose your path above.</p>
+            </div>
+              )}
+            </div>
+        </section>
             </div>
         </main>
     );

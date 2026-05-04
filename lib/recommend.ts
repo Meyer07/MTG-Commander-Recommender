@@ -4,37 +4,48 @@ interface ScryfallResponse
 {
     data: any[];
 }
-export async function getRecommendations(prefs:Preferences): Promise <Deck[]>
-{
+export async function getRecommendations(prefs: Preferences): Promise<Deck[]> {
+    const colorString = prefs.preferredColors.join('').toLowerCase();
+    
+    // Identity<= ensures we stay within the chosen color identity
+    let query = `is:commander legal:commander identity<=${colorString || 'c'} order=edhrec`;
 
-    const colorString=prefs.preferredColors.join('').toLowerCase();
-    let query=`is:commander legal:commander identity<=${colorString || 'c'}`;
-    if (prefs.colorCount !== 'any') 
-    {
+    if (prefs.colorCount !== 'any') {
+        // Colors= ensures the EXACT number of colors are present
         query += ` colors=${prefs.colorCount}`;
     }
-    const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}`);
-    const data=(await response.json()) as ScryfallResponse;
 
-    const allCommanders:Deck[]=data.data.map((card:any)=>({
-        id:card.id,
-        commanderName:card.name,
-        colors:card.color_identity || [],
-        strategy: inferStrategy(card.oracle_text || "",card.name), 
+    // Use 'no-store' to prevent Vercel from caching an old, limited result set
+    const response = await fetch(
+        `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}`,
+        { cache: 'no-store' }
+    );
+    
+    const data = (await response.json()) as ScryfallResponse;
+
+    if (!data.data) return [];
+
+    // 1. Map ALL cards from Scryfall to your Deck format
+    const allCommanders: Deck[] = data.data.map((card: any) => ({
+        id: card.id,
+        commanderName: card.name,
+        colors: card.color_identity || [], // Use color_identity for better accuracy
+        strategy: inferStrategy(card.oracle_text || "", card.name),
         budget: calculateBudget(card.prices?.usd),
-        bracket: 3, // Default value
-        imageUrl: card.image_uris?.normal
-
+        bracket: 3,
+        imageUrl: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || ""
     }));
 
-    return allCommanders
-    .map(deck => ({
-      deck,
-      score: calculateScore(deck, prefs)
-    }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10) // Return top 10
-    .map(item => item.deck);
+    // 2. Score and Sort so the best matches are first
+    const sortedCommanders = allCommanders
+        .map(deck => ({
+            ...deck,
+            score: calculateScore(deck, prefs)
+        }))
+        .sort((a, b) => (b as any).score - (a as any).score);
+
+    // 3. Return the entire list (up to 175) to the frontend
+    return sortedCommanders;
 }
 
 function inferStrategy(oracleText: string, name: string): string[]
