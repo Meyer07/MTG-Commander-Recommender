@@ -31,9 +31,11 @@ export async function getRecommendations(prefs: Preferences): Promise<Deck[]> {
         commanderName: card.name,
         colors: card.color_identity || [], // Use color_identity for better accuracy
         strategy: inferStrategy(card.oracle_text || "", card.name),
+        keywords:card.keywords||[],
         budget: calculateBudget(card.prices?.usd),
         bracket: 3,
-        imageUrl: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || ""
+        imageUrl: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || "",
+        oracleText: card.oracle_text || card.card_faces?.[0]?.oracle_text || "No oracle text available.",
     }));
 
     // 2. Score and Sort so the best matches are first
