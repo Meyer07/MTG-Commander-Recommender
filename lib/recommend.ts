@@ -8,7 +8,11 @@ export async function getRecommendations(prefs:Preferences): Promise <Deck[]>
 {
 
     const colorString=prefs.preferredColors.join('').toLowerCase();
-    const query=`is:commander legal:commander identity<=${colorString || 'c'}`;
+    let query=`is:commander legal:commander identity<=${colorString || 'c'}`;
+    if (prefs.colorCount !== 'any') 
+    {
+        query += ` colors=${prefs.colorCount}`;
+    }
     const response = await fetch(`https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}`);
     const data=(await response.json()) as ScryfallResponse;
 
@@ -82,26 +86,19 @@ function calculateBudget(usdPrice:string |undefined):'low'|'mid'|'high'
 function calculateScore(deck: Deck, prefs: Preferences): number {
     let score = 0;
     const deckColors = deck.colors || [];
-    
-    // EXACT MATCH LOGIC:
-    // Check if the number of colors is the same and every color matches
-    const isExactMatch = deckColors.length === prefs.preferredColors.length && 
-                         deckColors.every(c => prefs.preferredColors.includes(c));
 
-    if (isExactMatch) {
-        score += 100; // Heavy reward for the exact combination
-    } else {
-        // If it's not an exact match but still within the identity, 
-        // give a smaller reward based on shared colors
-        const colorMatch = deckColors.filter(c => prefs.preferredColors.includes(c)).length;
-        score += colorMatch * 10;
+    // If a specific count was requested, penalize heavily if it doesn't match
+    if (prefs.colorCount !== 'any' && deckColors.length !== prefs.preferredColors.length) {
+        score -= 100; 
     }
 
-    // Keep strategy scoring as is[cite: 4]
-    const deckStrats = deck.strategy || [];
-    const strategyMatch = deckStrats.filter(s => prefs.preferredStrategies.includes(s)).length;
-    score += strategyMatch * 20;
+    // Standard scoring continues...
+    const colorMatch = deckColors.filter(c => prefs.preferredColors.includes(c)).length;
+    score += colorMatch * 20;
 
-    // ... rest of budget and bracket logic[cite: 4]
+    // Strategy match...
+    const strategyMatch = deck.strategy.filter(s => prefs.preferredStrategies.includes(s)).length;
+    score += strategyMatch * 15;
+
     return score;
 }
