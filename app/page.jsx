@@ -121,7 +121,7 @@ export default function Home() {
                             <div>
                                 <label className="block mb-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Color Complexity</label>
                                 <div className="grid grid-cols-3 gap-2 mb-4">
-                                    {[1, 2, 3, 4, 5, 0].map((num) => (
+                                    {[1, 2, 3, 4, 5, 'No'].map((num) => (
                                         <button
                                             key={num}
                                             onClick={() => setPrefs({ ...prefs, colorCount: num })}
