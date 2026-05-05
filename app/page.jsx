@@ -28,6 +28,7 @@ export default function Home() {
     const fetchSynergy = async (commander) => {
         setLoadingSynergy(true);
         try {
+            // Extracts core themes from the oracle text to ensure synergy shifts per commander
             const themes = ["artifact", "creature", "token", "spell", "land", "graveyard", "counter", "draw"];
             const text = commander.oracleText.toLowerCase();
             const foundTheme = themes.find(t => text.includes(t)) || "creature";
@@ -257,45 +258,49 @@ export default function Home() {
             {selectedCard && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md" onClick={() => setSelectedCard(null)}></div>
-                    <div className="relative bg-[#0b1120] border border-slate-700 w-full max-w-6xl max-h-[90vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+                    <div className="relative bg-[#0b1120] border border-slate-700 w-full max-w-6xl h-[90vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col">
                         <button onClick={() => setSelectedCard(null)} className="absolute top-6 right-6 z-20 w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center border border-slate-700 hover:bg-slate-700 transition-colors text-white">✕</button>
                         
                         <div className="flex flex-col md:flex-row h-full overflow-hidden">
-                            <div className="md:w-1/3 p-8 border-r border-slate-800 bg-slate-900/20 flex flex-col items-center">
-                                <img src={selectedCard.imageUrl} alt={selectedCard.commanderName} className="w-full max-w-xs rounded-2xl shadow-2xl mb-6 shadow-blue-500/10" />
-                                <div className="w-full">
-                                    <h2 className="text-2xl font-black text-white mb-2">{selectedCard.commanderName}</h2>
-                                    <div className="flex gap-2 mb-6">
-                                        {selectedCard.colors?.map(c => (
-                                            <span key={c} className="w-5 h-5 rounded-full border border-slate-900 shadow-sm" style={{ backgroundColor: getColorHex(c) }}></span>
-                                        ))}
-                                    </div>
-                                    <div className="space-y-6">
-                                        <section>
-                                            <h3 className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-3">Keywords</h3>
-                                            <div className="flex flex-wrap gap-2 mb-4">
-                                                {selectedCard.keywords?.length > 0 ? (
-                                                    selectedCard.keywords.map(k => (
-                                                        <span key={k} className="px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded text-[9px] font-bold text-purple-300 uppercase italic">
-                                                            {k}
-                                                        </span>
-                                                    ))
-                                                ) : (
-                                                    <span className="text-slate-600 text-[9px] uppercase font-bold italic tracking-tighter">No Keywords Found</span>
-                                                )}
-                                            </div>
+                            {/* Scrollable Left Side */}
+                            <div className="md:w-1/3 p-8 border-r border-slate-800 bg-slate-900/20 overflow-y-auto h-full">
+                                <div className="flex flex-col items-center">
+                                    <img src={selectedCard.imageUrl} alt={selectedCard.commanderName} className="w-full max-w-xs rounded-2xl shadow-2xl mb-6 shadow-blue-500/10" />
+                                    <div className="w-full">
+                                        <h2 className="text-2xl font-black text-white mb-2">{selectedCard.commanderName}</h2>
+                                        <div className="flex gap-2 mb-6">
+                                            {selectedCard.colors?.map(c => (
+                                                <span key={c} className="w-5 h-5 rounded-full border border-slate-900 shadow-sm" style={{ backgroundColor: getColorHex(c) }}></span>
+                                            ))}
+                                        </div>
+                                        <div className="space-y-6">
+                                            <section>
+                                                <h3 className="text-[10px] font-bold text-purple-400 uppercase tracking-widest mb-3">Keywords</h3>
+                                                <div className="flex flex-wrap gap-2 mb-4">
+                                                    {selectedCard.keywords?.length > 0 ? (
+                                                        selectedCard.keywords.map(k => (
+                                                            <span key={k} className="px-2 py-1 bg-purple-500/10 border border-purple-500/30 rounded text-[9px] font-bold text-purple-300 uppercase italic">
+                                                                {k}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-slate-600 text-[9px] uppercase font-bold italic tracking-tighter">No Keywords Found</span>
+                                                    )}
+                                                </div>
 
-                                            <h3 className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-3">Oracle Text</h3>
-                                            <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 font-mono text-[11px] leading-relaxed text-slate-400 max-h-48 overflow-y-auto whitespace-pre-wrap">
-                                                {selectedCard.oracleText}
-                                            </div>
-                                        </section>
-                                        <a href={getEDHRECLink(selectedCard.commanderName)} target="_blank" className="block w-full py-3 bg-blue-600 text-white font-black rounded-xl text-center text-[10px] uppercase tracking-widest hover:bg-blue-500 transition-all">Full Strategy Deck</a>
+                                                <h3 className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-3">Oracle Text</h3>
+                                                <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 font-mono text-[11px] leading-relaxed text-slate-400 whitespace-pre-wrap mb-4">
+                                                    {selectedCard.oracleText}
+                                                </div>
+                                            </section>
+                                            <a href={getEDHRECLink(selectedCard.commanderName)} target="_blank" className="block w-full py-3 bg-blue-600 text-white font-black rounded-xl text-center text-[10px] uppercase tracking-widest hover:bg-blue-500 transition-all">Full Strategy Deck</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="md:w-2/3 p-8 overflow-y-auto bg-slate-900/40">
+                            {/* Scrollable Right Side */}
+                            <div className="md:w-2/3 p-8 overflow-y-auto h-full bg-slate-900/40">
                                 <div className="flex items-center justify-between mb-8">
                                     <div>
                                         <h3 className="text-xl font-bold text-white uppercase tracking-tight">Component Resonance</h3>
